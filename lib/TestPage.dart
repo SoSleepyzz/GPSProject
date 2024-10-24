@@ -1,5 +1,6 @@
 import 'package:final_project/pages/DetailPage.dart';
 import 'package:final_project/pages/LoginPage.dart';
+import 'package:final_project/pages/MapScreen.dart';
 import 'package:final_project/pages/RegChoose.dart';
 import 'package:final_project/pages/RegisterPage.dart';
 import 'package:final_project/pages/RiderMain.dart';
@@ -41,11 +42,14 @@ class _TestpageState extends State<Testpage> {
             Navigator.push(context, MaterialPageRoute(builder: (context) => SendForm()));
           } , child: Text('Sending Detail page') ),
           FilledButton(onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => DetailPage()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => DetailPage(oid: 1,)));
           } , child: Text('Detail page') ),
           FilledButton(onPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) => Ridermain()));
           } , child: Text('Rider Main page') ),
+          FilledButton(onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => gpsPage()));
+          } , child: Text('GPS page') ),
         ],
       ),
     );

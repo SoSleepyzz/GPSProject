@@ -1,4 +1,15 @@
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:final_project/config/config.dart';
+import 'package:final_project/models/req/userLoginReq.dart';
+import 'package:final_project/models/res/userLoginRes.dart';
+import 'package:final_project/pages/RegChoose.dart';
+import 'package:final_project/pages/RiderMain.dart';
+import 'package:final_project/pages/UserMain.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:get_storage/get_storage.dart';
 
 class Loginpage extends StatefulWidget {
   const Loginpage({super.key});
@@ -10,6 +21,28 @@ class Loginpage extends StatefulWidget {
 class _LoginpageState extends State<Loginpage> {
   TextEditingController userNameCtl = TextEditingController();
   TextEditingController passWordCtl = TextEditingController();
+  final gs = GetStorage();
+  var uid;
+  String url = "";
+  String text = "";
+
+  void initState() {
+      super.initState();
+      uid = gs.read('uid');
+      // if(uid){
+      //   Get.to((Route)=>HomePage());
+      // };
+      Configuration config = Configuration();
+      config.getConfig().then(
+        (value) {
+          log(value['apiEndpoint']);
+          url = (value['apiEndpoint']);
+        },
+      ).catchError((err) {
+        log(err.toString());
+      });
+    }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,10 +159,46 @@ class _LoginpageState extends State<Loginpage> {
       ),
     );
   }
-  login(){
-
+   void login() {
+    var data = UserLoginReqDart(phone: userNameCtl.text, password: passWordCtl.text);    
+        http.post(Uri.parse('$url/test/login'),
+            headers: {"Content-Type": "application/json; charset=utf-8"},
+            body: jsonEncode(data))
+        .then(
+      (value) {
+        log(value.body);
+        UserLoginResDart user = userLoginResDartFromJson(value.body);
+        gs.write("uid", user.id);
+        log("user.Id");
+        if (user.type == 0) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const Usermain(),
+                // ส่ง UID ไปตอนนี้ยังไม่มีตัวรับ UID ในหน้า HomePage เลย comment ไว้ก่อน
+                // builder: (context) => HomePage(UID: user.uid),
+              ));
+        } else if (user.type == 1) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const Ridermain(),
+              ));
+        }
+      },
+    ).catchError((eee) {
+      setState(() {
+        text = 'name or password incorrect!';
+      });
+      log(eee.toString());
+    });
   }
-  register(){
 
+  register(){
+     Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const Regchoose(),
+              ));
   }
 }
